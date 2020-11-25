@@ -1,6 +1,4 @@
-# hh-school-2020-java-collections-stream
+# ДЗ из ШП HH
 
-ДЗ из ШП HH
-
-ДЗ по Java, Collections, Stream API положено в package hw.streamapi
+ДЗ по [Java, Collections, Stream API](https://github.com/genroelgvozo/hh-school-2020-java-collections-stream) положено в package hw.streamapi
 
