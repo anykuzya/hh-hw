@@ -17,11 +17,18 @@ import java.util.*;
 public class Task6 implements Task {
 
     // ок, давай начнём с тупого решения "в лоб", потом подумаю, как сделать это на стримах
+    // сейчас это O(n*m) где n -- кол-во персон, m -- кол-во областей
     private Set<String> getPersonDescriptions(Collection<Person> persons,
                                               Map<Integer, Set<Integer>> personAreaIds,
                                               Collection<Area> areas) {
         HashSet<String> result = new HashSet<>();
         for (Person person : persons) {
+            var relatedAreaIds = personAreaIds.get(person.getId());
+            for (Area area: areas) {
+                if (relatedAreaIds.contains(area.getId())) {
+                    result.add(person.getFirstName() + " - " + area.getName());
+                }
+            }
 
         }
         return result;
