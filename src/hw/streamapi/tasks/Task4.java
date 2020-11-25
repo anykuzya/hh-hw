@@ -7,6 +7,7 @@ import hw.streamapi.common.Task;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /*
 Задача 4
@@ -26,8 +27,14 @@ public class Task4 implements Task {
     }
 
     // !!! Редактируйте этот метод !!!
+    // тут вроде даже в комментарий нечего добавить.
+    // пусть тогда будет вопрос: норм ли писать на одной строчке, когда вроде очевидно и читается легко?
+    // Или вообще всегда нужно следующее действие над стримом с новой строчки писать, как ниже?
+    // return persons.stream()
+    //            .map(Task4::convert)
+    //            .collect(Collectors.toList());
     private List<ApiPersonDto> convert(List<Person> persons) {
-        return new ArrayList<>();
+        return persons.stream().map(Task4::convert).collect(Collectors.toList());
     }
 
     @Override
