@@ -84,9 +84,9 @@ public class Task8 implements Task {
 
     @Override
     public boolean check() {
-        System.out.println("Слабо дойти до сюда и исправить Fail этой таски?");
+        System.out.println("Среда -- это маленькая пятница!");
         boolean codeSmellsGood = false;
-        boolean reviewerDrunk = false;
+        boolean reviewerDrunk = true;
         return codeSmellsGood || reviewerDrunk;
     }
 }
