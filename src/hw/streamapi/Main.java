@@ -1,17 +1,12 @@
-import common.Task;
-import tasks.Task1;
-import tasks.Task2;
-import tasks.Task3;
-import tasks.Task4;
-import tasks.Task5;
-import tasks.Task6;
-import tasks.Task7;
-import tasks.Task8;
+package hw.streamapi;
+
+import hw.streamapi.common.Task;
+import hw.streamapi.tasks.*;
 
 import java.util.List;
 
 /*
-Задачи находятся в пэкедже tasks
+Задачи находятся в пэкедже hw.streamapi.tasks
 Один класс - одна задача.
 main запустит и проверит все эти задачи
 Реализовывать можно как и с использованием стримов, так и без
@@ -20,17 +15,17 @@ main запустит и проверит все эти задачи
  */
 public class Main {
 
-  public static void main(String[] args) {
-    List<Task> tasks = List.of(
-        new Task1(),
-        new Task2(),
-        new Task3(),
-        new Task4(),
-        new Task5(),
-        new Task6(),
-        new Task7(),
-        new Task8()
-    );
-    tasks.forEach(task -> System.out.println(task.getClass().getName() + " - "  + (task.check() ? "Success" : "Fail")));
-  }
+    public static void main(String[] args) {
+        List<Task> tasks = List.of(
+            new Task1(),
+            new Task2(),
+            new Task3(),
+            new Task4(),
+            new Task5(),
+            new Task6(),
+            new Task7(),
+            new Task8()
+        );
+        tasks.forEach(task -> System.out.println(task.getClass().getName() + " - " + (task.check() ? "Success" : "Fail")));
+    }
 }
