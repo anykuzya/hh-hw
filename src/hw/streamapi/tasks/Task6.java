@@ -16,21 +16,26 @@ import java.util.*;
  */
 public class Task6 implements Task {
 
-  private Set<String> getPersonDescriptions(Collection<Person> persons,
-                                            Map<Integer, Set<Integer>> personAreaIds,
-                                            Collection<Area> areas) {
-    return new HashSet<>();
-  }
+    // ок, давай начнём с тупого решения "в лоб", потом подумаю, как сделать это на стримах
+    private Set<String> getPersonDescriptions(Collection<Person> persons,
+                                              Map<Integer, Set<Integer>> personAreaIds,
+                                              Collection<Area> areas) {
+        HashSet<String> result = new HashSet<>();
+        for (Person person : persons) {
 
-  @Override
-  public boolean check() {
-    List<Person> persons = List.of(
-        new Person(1, "Oleg", Instant.now()),
-        new Person(2, "Vasya", Instant.now())
-    );
-    Map<Integer, Set<Integer>> personAreaIds = Map.of(1, Set.of(1, 2), 2, Set.of(2, 3));
-    List<Area> areas = List.of(new Area(1, "Moscow"), new Area(2, "Spb"), new Area(3, "Ivanovo"));
-    return getPersonDescriptions(persons, personAreaIds, areas)
-        .equals(Set.of("Oleg - Moscow", "Oleg - Spb", "Vasya - Spb", "Vasya - Ivanovo"));
-  }
+        }
+        return result;
+    }
+
+    @Override
+    public boolean check() {
+        List<Person> persons = List.of(
+            new Person(1, "Oleg", Instant.now()),
+            new Person(2, "Vasya", Instant.now())
+        );
+        Map<Integer, Set<Integer>> personAreaIds = Map.of(1, Set.of(1, 2), 2, Set.of(2, 3));
+        List<Area> areas = List.of(new Area(1, "Moscow"), new Area(2, "Spb"), new Area(3, "Ivanovo"));
+        return getPersonDescriptions(persons, personAreaIds, areas)
+            .equals(Set.of("Oleg - Moscow", "Oleg - Spb", "Vasya - Spb", "Vasya - Ivanovo"));
+    }
 }
