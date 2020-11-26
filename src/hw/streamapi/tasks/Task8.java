@@ -5,8 +5,9 @@ import hw.streamapi.common.Task;
 
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.*;
 
 /*
 А теперь о горьком
@@ -24,9 +25,9 @@ public class Task8 implements Task {
     // Не хотим выдавать апи нашу фальшивую персону, поэтому конвертим начиная со второй
     // TODO: упомянуть в пулл-реквесте: откуда взялась фальшивая персона -- это, конечно, загадка, но ШТО Ж
     public List<String> getFirstNamesWithoutFake(List<Person> persons) {
-//        return persons.stream().filter(person -> person.getId() != -1).map(Person::getFirstName).collect(Collectors.toList())
+//        return persons.stream().filter(person -> person.getId() != -1).map(Person::getFirstName).collect(toList())
         // TODO: точно ли первая персона фальшивая? возможно, лучше будет вот так ^^^
-        return persons.stream().skip(1).map(Person::getFirstName).collect(Collectors.toList());
+        return persons.stream().skip(1).map(Person::getFirstName).collect(toList());
     }
 
     // получаем сет уникальных пользовательских имен
@@ -39,12 +40,12 @@ public class Task8 implements Task {
         return Stream.of(person.getFirstName(), person.getMiddleName(), person.getSecondName())
             .map(Optional::ofNullable)
             .flatMap(Optional::stream)
-            .collect(Collectors.joining(" "));
+            .collect(joining(" "));
     }
 
     // словарь id персоны -> ее полное имя
     public Map<Integer, String> getPersonIdsToFullNamesMapping(Collection<Person> persons) {
-        return persons.stream().collect(Collectors.toMap(Person::getId, Task8::convertPersonToFullName, (a, b) -> a));
+        return persons.stream().collect(toMap(Person::getId, Task8::convertPersonToFullName, (a, b) -> a));
     }
 
     // есть ли совпадающие в двух коллекциях персоны?
@@ -82,7 +83,7 @@ public class Task8 implements Task {
             return false;
         }
 
-        if (!persons.stream().map(Task8::convertPersonToFullName).collect(Collectors.toList())
+        if (!persons.stream().map(Task8::convertPersonToFullName).collect(toList())
             .equals(List.of("fake first name fake middle name fake last name",
                 "Oleg", "Anna Ivanova", "Anna Kuznetsova", "Anna Kuznetsova"))) {
             System.out.println("Task8::convertPersonToString is broken");

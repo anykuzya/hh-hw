@@ -7,8 +7,10 @@ import hw.streamapi.common.Task;
 import java.time.Instant;
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 
 /*
 Имеются
@@ -37,12 +39,12 @@ public class Task6 implements Task {
                                               Map<Integer, Set<Integer>> personAreaIds,
                                               Collection<Area> areas) {
 
-        var idsToPersons = persons.stream().collect(Collectors.toMap(Person::getId, Function.identity()));
-        var idsToAreas = areas.stream().collect(Collectors.toMap(Area::getId, Function.identity()));
+        var idsToPersons = persons.stream().collect(toMap(Person::getId, Function.identity()));
+        var idsToAreas = areas.stream().collect(toMap(Area::getId, Function.identity()));
 
         return personAreaIds.entrySet().stream() // это стрим с айдишниками юзеров
             .flatMap(entry -> getPersonAreas(entry.getKey(), entry.getValue(), idsToPersons, idsToAreas)) // а вот теперь это стрим нужных нам строчек
-            .collect(Collectors.toSet());
+            .collect(toSet());
     }
 
     @Override

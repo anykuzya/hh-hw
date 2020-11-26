@@ -6,7 +6,9 @@ import hw.streamapi.common.Task;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 /*
 Задача 1
@@ -23,10 +25,10 @@ public class Task1 implements Task {
     private List<Person> findOrderedPersons(List<Integer> personIds) {
         Set<Person> persons = PersonService.findPersons(personIds);
         Map<Integer, Person> idsToPersons = persons.stream()
-            .collect(Collectors.toMap(Person::getId, Function.identity()));
+            .collect(toMap(Person::getId, Function.identity()));
         return personIds.stream()
             .map(idsToPersons::get)
-            .collect(Collectors.toList());
+            .collect(toList());
     }
 
     @Override
@@ -35,7 +37,7 @@ public class Task1 implements Task {
 
         return findOrderedPersons(ids).stream()
             .map(Person::getId)
-            .collect(Collectors.toList())
+            .collect(toList())
             .equals(ids);
     }
 

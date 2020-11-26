@@ -5,9 +5,9 @@ import hw.streamapi.common.Person;
 import hw.streamapi.common.Task;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 /*
 Задача 4
@@ -32,9 +32,9 @@ public class Task4 implements Task {
     // Или вообще всегда нужно следующее действие над стримом с новой строчки писать, как ниже?
     // return persons.stream()
     //            .map(Task4::convert)
-    //            .collect(Collectors.toList());
+    //            .collect(toList());
     private List<ApiPersonDto> convert(List<Person> persons) {
-        return persons.stream().map(Task4::convert).collect(Collectors.toList());
+        return persons.stream().map(Task4::convert).collect(toList());
     }
 
     @Override

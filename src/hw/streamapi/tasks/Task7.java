@@ -6,7 +6,8 @@ import hw.streamapi.common.Vacancy;
 
 import java.util.Collection;
 import java.util.Set;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toSet;
 
 /*
 Из коллекции компаний необходимо получить всевозможные различные названия вакансий
@@ -22,7 +23,7 @@ public class Task7 implements Task {
             .map(Company::getVacancies)
             .flatMap(Collection::stream)
             .map(Vacancy::getTitle)
-            .collect(Collectors.toSet());
+            .collect(toSet());
     }
 
     @Override

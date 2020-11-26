@@ -5,10 +5,10 @@ import hw.streamapi.common.Person;
 import hw.streamapi.common.Task;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 /*
 Задача 5
@@ -34,7 +34,7 @@ public class Task5 implements Task {
     private List<ApiPersonDto> convert(List<Person> persons, Map<Integer, Integer> personAreaIds) {
         return persons.stream()
             .map(person -> convert(person, personAreaIds.get(person.getId())))
-            .collect(Collectors.toList());
+            .collect(toList());
     }
 
     @Override

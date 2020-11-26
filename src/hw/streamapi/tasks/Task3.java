@@ -8,7 +8,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 /*
 Задача 3
@@ -24,7 +25,7 @@ public class Task3 implements Task {
             .sorted(Comparator.comparing(Person::getSecondName)
                 .thenComparing(Person::getFirstName)
                 .thenComparing(Person::getCreatedAt))
-            .collect(Collectors.toList());
+            .collect(toList());
     }
 
     @Override

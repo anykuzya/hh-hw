@@ -5,8 +5,9 @@ import hw.streamapi.common.Task;
 
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 /*
 Задача 2
@@ -34,7 +35,7 @@ public class Task2 implements Task {
 
         return Stream.concat(persons1.stream(), persons2.stream())
             .sorted(Comparator.comparing(Person::getCreatedAt))
-            .limit(limit).collect(Collectors.toList());
+            .limit(limit).collect(toList());
     }
 
     @Override
@@ -50,11 +51,11 @@ public class Task2 implements Task {
         );
         return combineAndSortWithLimit(persons1, persons2, 3).stream()
             .map(Person::getId)
-            .collect(Collectors.toList())
+            .collect(toList())
             .equals(List.of(3, 1, 2))
             && combineAndSortWithLimit(persons1, persons2, 5).stream()
             .map(Person::getId)
-            .collect(Collectors.toList())
+            .collect(toList())
             .equals(List.of(3, 1, 2, 4));
     }
 }
