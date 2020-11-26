@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /*
 Имеются
@@ -23,22 +24,24 @@ public class Task6 implements Task {
     // сейчас по памяти это O(n+m) где n -- кол-во персон, m -- кол-во областей,
     // а по времени вроде бы тоже линия (за которую мы создаем маппинги из id в объекты)
     private static final String separator = " - ";
+    private static Stream<String> getPersonAreas(Integer userId, Set<Integer> userAreas,
+                                                Map<Integer, Person> idsToPersons, Map<Integer, Area> idsToAreas) {
+        return userAreas.stream()
+            .map(areaId -> // это маленький стрим для каждого юзера, в нем его (этого юзера) области
+                idsToPersons.get(userId).getFirstName() + separator + idsToAreas.get(areaId).getName()
+            ); // и это тоже все ещё стрим, но уже стрим со строками заданного формата для этого юзера
+
+    }
 
     private Set<String> getPersonDescriptions(Collection<Person> persons,
                                               Map<Integer, Set<Integer>> personAreaIds,
                                               Collection<Area> areas) {
 
-        Map<Integer, Person> idsToPersons = persons.stream()
-            .collect(Collectors.toMap(Person::getId, Function.identity()));
-        Map<Integer, Area> idsToAreas = areas.stream()
-            .collect(Collectors.toMap(Area::getId, Function.identity()));
+        var idsToPersons = persons.stream().collect(Collectors.toMap(Person::getId, Function.identity()));
+        var idsToAreas = areas.stream().collect(Collectors.toMap(Area::getId, Function.identity()));
 
         return personAreaIds.entrySet().stream() // это стрим с айдишниками юзеров
-            .flatMap(personIdToSetOfAreaIds -> personIdToSetOfAreaIds.getValue().stream() // а это маленький стрим для каждого юзера, в нем его (этого юзера) области
-                .map(areaId -> Map.entry(personIdToSetOfAreaIds.getKey(), areaId)))  // и это тоже все ещё стрим, теперь пар юзер&его области
-            .map(personIdToAreaId ->
-                idsToPersons.get(personIdToAreaId.getKey()).getFirstName() + separator
-                    + idsToAreas.get(personIdToAreaId.getValue()).getName())  // а теперь уже стрим со строками заданного формата
+            .flatMap(entry -> getPersonAreas(entry.getKey(), entry.getValue(), idsToPersons, idsToAreas)) // а вот теперь это стрим нужных нам строчек
             .collect(Collectors.toSet());
     }
 
