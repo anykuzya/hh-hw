@@ -34,14 +34,12 @@ public class Task6 implements Task {
             .collect(Collectors.toMap(Area::getId, Function.identity()));
 
         return personAreaIds.entrySet().stream() // это стрим с айдишниками юзеров
-            .flatMap(entry -> {
-                var userId = entry.getKey();
-                return entry.getValue().stream() // а это маленький стрим для каждого юзера, в нем его (этого юзера) области
-                    .map(areaId ->
-                        idsToPersons.get(userId).getFirstName()
-                            + separator
-                            + idsToAreas.get(areaId).getName()); // и это тоже все ещё стрим, но уже стрим со строками заданного формата для этого юзера
-            }).collect(Collectors.toSet());
+            .flatMap(personIdToSetOfAreaIds -> personIdToSetOfAreaIds.getValue().stream() // а это маленький стрим для каждого юзера, в нем его (этого юзера) области
+                .map(areaId -> Map.entry(personIdToSetOfAreaIds.getKey(), areaId)))  // и это тоже все ещё стрим, теперь пар юзер&его области
+            .map(personIdToAreaId ->
+                idsToPersons.get(personIdToAreaId.getKey()).getFirstName() + separator
+                    + idsToAreas.get(personIdToAreaId.getValue()).getName())  // а теперь уже стрим со строками заданного формата
+            .collect(Collectors.toSet());
     }
 
     @Override
