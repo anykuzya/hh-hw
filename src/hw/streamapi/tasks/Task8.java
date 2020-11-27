@@ -48,9 +48,7 @@ public class Task8 implements Task {
 
     // есть ли совпадающие в двух коллекциях персоны?
     public boolean hasSamePersons(Collection<Person> persons1, Collection<Person> persons2) {
-        HashSet<Person> people = new HashSet<>(persons1);
-        people.retainAll(persons2);
-        return !people.isEmpty();
+        return !Collections.disjoint(persons1, persons2);
     }
 
     public static long countEven(Stream<Integer> numbers) {
