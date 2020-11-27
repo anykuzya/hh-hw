@@ -23,9 +23,8 @@ public class Task8 implements Task {
     private final Person fakePerson = new Person(-1, "fake first name", "fake last name", "fake middle name", Instant.now());
 
     // Не хотим выдавать апи нашу фальшивую персону, поэтому конвертим начиная со второй
-    // TODO: упомянуть в пулл-реквесте: откуда взялась фальшивая персона -- это, конечно, загадка, но ШТО Ж
     public List<String> getFirstNamesWithoutFake(List<Person> persons) {
-//        return persons.stream().filter(person -> person.getId() != -1).map(Person::getFirstName).collect(toList())
+        // return persons.stream().filter(person -> person.getId() != -1).map(Person::getFirstName).collect(toList())
         // TODO: точно ли первая персона фальшивая? возможно, лучше будет вот так ^^^
         return persons.stream().skip(1).map(Person::getFirstName).collect(toList());
     }
@@ -108,7 +107,7 @@ public class Task8 implements Task {
 
             return false;
         }
-        System.out.println("Среда -- это маленькая пятница!");
+        System.out.println("TGIF!");
         Boolean codeSmellsGood = null;
         boolean reviewerDrunk = true;
         return reviewerDrunk || codeSmellsGood;
