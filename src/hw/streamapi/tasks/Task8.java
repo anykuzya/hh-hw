@@ -55,9 +55,8 @@ public class Task8 implements Task {
         return !people.isEmpty();
     }
 
-    // ???
-    public long countEven(Stream<Integer> numbers) {
-        return numbers.filter(n -> n % 2 == 0).mapToInt(Integer::intValue).count();
+    public static long countEven(Stream<Integer> numbers) {
+        return numbers.filter(n -> n % 2 == 0).count();
     }
 
     @Override
