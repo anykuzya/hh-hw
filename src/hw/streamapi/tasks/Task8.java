@@ -37,8 +37,7 @@ public class Task8 implements Task {
     // Для фронтов выдадим полное имя, а то сами не могут
     public static String convertPersonToFullName(Person person) {
         return Stream.of(person.getFirstName(), person.getMiddleName(), person.getSecondName())
-            .map(Optional::ofNullable)
-            .flatMap(Optional::stream)
+            .filter(Objects::nonNull)
             .collect(joining(" "));
     }
 
