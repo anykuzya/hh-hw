@@ -6,7 +6,6 @@ import hw.streamapi.common.Task;
 
 import java.time.Instant;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toMap;
@@ -26,12 +25,10 @@ public class Task6 implements Task {
     // сейчас по памяти это O(n+m) где n -- кол-во персон, m -- кол-во областей,
     // а по времени вроде бы тоже линия (за которую мы создаем маппинги из id в объекты)
     private static final String separator = " - ";
-    private static Stream<String> getPersonAreas(Integer userId, Set<Integer> userAreas,
-                                                Map<Integer, Person> idsToPersons, Map<Integer, Area> idsToAreas) {
-        return userAreas.stream()
-            .map(areaId -> // это маленький стрим для каждого юзера, в нем его (этого юзера) области
-                idsToPersons.get(userId).getFirstName() + separator + idsToAreas.get(areaId).getName()
-            ); // и это тоже все ещё стрим, но уже стрим со строками заданного формата для этого юзера
+    private static Stream<String> getPersonAreasString(Person person, Set<Integer> personAreas,
+                                                       Map<Integer, String> idsToAreaNames) {
+        return personAreas.stream().map(areaId -> // это маленький стрим для каждого юзера, в нем его (этого юзера) области
+            person.getFirstName() + separator + idsToAreaNames.getOrDefault(areaId, "")); // и это тоже все ещё стрим, но уже стрим со строками заданного формата для этого юзера
 
     }
 
@@ -39,11 +36,11 @@ public class Task6 implements Task {
                                               Map<Integer, Set<Integer>> personAreaIds,
                                               Collection<Area> areas) {
 
-        var idsToPersons = persons.stream().collect(toMap(Person::getId, Function.identity()));
-        var idsToAreas = areas.stream().collect(toMap(Area::getId, Function.identity()));
-
-        return personAreaIds.entrySet().stream() // это стрим с айдишниками юзеров
-            .flatMap(entry -> getPersonAreas(entry.getKey(), entry.getValue(), idsToPersons, idsToAreas)) // а вот теперь это стрим нужных нам строчек
+        var idsToAreaNames = areas.stream().collect(toMap(Area::getId, Area::getName));
+        return persons.stream()
+            .flatMap(person -> getPersonAreasString(person,
+                                                    personAreaIds.getOrDefault(person.getId(), Collections.emptySet()),
+                                                    idsToAreaNames))
             .collect(toSet());
     }
 
@@ -52,7 +49,8 @@ public class Task6 implements Task {
         List<Person> persons = List.of(
             new Person(0, "Oleg", Instant.now()),
             new Person(1, "Vasya", "Ivanov", Instant.now()),
-            new Person(2, "Vasya", "Petrov", Instant.now())
+            new Person(2, "Vasya", "Petrov", Instant.now()),
+            new Person(3, "Anna", "Kuznetsova", Instant.now()) // без ареек
         );
         Map<Integer, Set<Integer>> personAreaIds = Map.of(0, Set.of(1, 2), 1, Set.of(2, 3), 2, Set.of(1));
         List<Area> areas = List.of(new Area(1, "Moscow"), new Area(2, "Spb"), new Area(3, "Ivanovo"));
