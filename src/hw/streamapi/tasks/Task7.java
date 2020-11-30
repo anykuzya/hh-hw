@@ -5,16 +5,25 @@ import hw.streamapi.common.Task;
 import hw.streamapi.common.Vacancy;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
+
+import static java.util.stream.Collectors.toSet;
 
 /*
 Из коллекции компаний необходимо получить всевозможные различные названия вакансий
  */
 public class Task7 implements Task {
 
+    // кажется, что тут тоже быстрее бы не получилось -- чтобы найти все названия вакансий,
+    // нужно на все вакансии всех компаний посмотреть.
+    // первая мысль была сделать сразу flatMap (.flatMap(company -> company.getVacancies().stream())),
+    // но по производительности это вроде не влияет, а вот читать что происходит в отдельных преобразованиях, проще
     private Set<String> vacancyNames(Collection<Company> companies) {
-        return new HashSet<>();
+        return companies.stream()
+            .map(Company::getVacancies)
+            .flatMap(Collection::stream)
+            .map(Vacancy::getTitle)
+            .collect(toSet());
     }
 
     @Override

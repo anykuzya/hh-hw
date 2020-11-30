@@ -4,25 +4,38 @@ import hw.streamapi.common.Person;
 import hw.streamapi.common.Task;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 /*
 Задача 2
 На вход принимаются две коллекции объектов Person и величина limit
-Необходимо объеденить обе коллекции
+Необходимо объединить обе коллекции
 отсортировать персоны по дате создания и выдать первые limit штук.
  */
 public class Task2 implements Task {
 
     // !!! Редактируйте этот метод !!!
+    // вроде похоже на нормальное решение, быстрее, наверное не сделаешь
+    // тут, получается, сортировка O(nlogn) где n то сумма длин списков
+    // ВЕРОЯТНО, смержить две коллекции можно было бы вот так:
+    //   List<Person> l = new ArrayList<>();
+    //   l.addAll(persons1);
+    //   l.addAll(persons2);
+    //   l.stream() и дальше сортировка,
+    // ИЛИ вот так:
+    //   Stream.of(persons1, persons2)
+    //         .flatMap(Collection::stream) //...,
+    // но мне кажется, что так читаемее, а стримы из половинок мы и во флэтмапе создаем, если я всё правильно понимаю
     private static List<Person> combineAndSortWithLimit(Collection<Person> persons1,
                                                         Collection<Person> persons2,
                                                         int limit) {
-        return new ArrayList<>();
+
+        return Stream.concat(persons1.stream(), persons2.stream())
+            .sorted(Comparator.comparing(Person::getCreatedAt))
+            .limit(limit).collect(toList());
     }
 
     @Override
@@ -38,11 +51,11 @@ public class Task2 implements Task {
         );
         return combineAndSortWithLimit(persons1, persons2, 3).stream()
             .map(Person::getId)
-            .collect(Collectors.toList())
+            .collect(toList())
             .equals(List.of(3, 1, 2))
             && combineAndSortWithLimit(persons1, persons2, 5).stream()
             .map(Person::getId)
-            .collect(Collectors.toList())
+            .collect(toList())
             .equals(List.of(3, 1, 2, 4));
     }
 }

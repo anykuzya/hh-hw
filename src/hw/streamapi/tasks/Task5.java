@@ -5,9 +5,10 @@ import hw.streamapi.common.Person;
 import hw.streamapi.common.Task;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static java.util.stream.Collectors.toList;
 
 /*
 Задача 5
@@ -28,8 +29,12 @@ public class Task5 implements Task {
     }
 
     // !!! Редактируйте этот метод !!!
+    // похоже, мы больше не можем воспользоваться ссылкой на convert как маппером,
+    // с двумя аргументами надо явно вызывать его
     private List<ApiPersonDto> convert(List<Person> persons, Map<Integer, Integer> personAreaIds) {
-        return new ArrayList<>();
+        return persons.stream()
+            .map(person -> convert(person, personAreaIds.get(person.getId())))
+            .collect(toList());
     }
 
     @Override

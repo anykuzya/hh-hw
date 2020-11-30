@@ -6,7 +6,7 @@ import java.util.Objects;
 public class Person {
     private Integer id;
     private String firstName;
-    private String secondName;
+    private String secondName; // может всё-таки last name?) а то middle какой-то полуторный, что ли?)
     private String middleName;
     private Instant createdAt;
 

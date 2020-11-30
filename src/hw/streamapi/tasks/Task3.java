@@ -6,7 +6,10 @@ import hw.streamapi.common.Task;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 /*
 Задача 3
@@ -15,8 +18,14 @@ import java.util.List;
 public class Task3 implements Task {
 
     // !!! Редактируйте этот метод !!!
+    // тут вроде тоже все понятно, эта задачка нужна чтобы узнать,
+    // какой класс компаратор классный и что есть не просто comparing, а ещё и thenComparing
     private List<Person> sort(Collection<Person> persons) {
-        return new ArrayList<>(persons);
+        return persons.stream()
+            .sorted(Comparator.comparing(Person::getSecondName)
+                .thenComparing(Person::getFirstName)
+                .thenComparing(Person::getCreatedAt))
+            .collect(toList());
     }
 
     @Override

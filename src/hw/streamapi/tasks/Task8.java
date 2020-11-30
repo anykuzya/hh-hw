@@ -3,9 +3,11 @@ package hw.streamapi.tasks;
 import hw.streamapi.common.Person;
 import hw.streamapi.common.Task;
 
+import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.*;
 
 /*
 А теперь о горьком
@@ -18,75 +20,93 @@ P.P.S Здесь ваши правки желательно прокоммент
  */
 public class Task8 implements Task {
 
-  private long count;
+    private final Person fakePerson = new Person(-1, "fake first name", "fake last name", "fake middle name", Instant.now());
 
-  //Не хотим выдывать апи нашу фальшивую персону, поэтому конвертим начиная со второй
-  public List<String> getNames(List<Person> persons) {
-    if (persons.size() == 0) {
-      return Collections.emptyList();
-    }
-    persons.remove(0);
-    return persons.stream().map(Person::getFirstName).collect(Collectors.toList());
-  }
-
-  //ну и различные имена тоже хочется
-  public Set<String> getDifferentNames(List<Person> persons) {
-    return getNames(persons).stream().distinct().collect(Collectors.toSet());
-  }
-
-  //Для фронтов выдадим полное имя, а то сами не могут
-  public String convertPersonToString(Person person) {
-    String result = "";
-    if (person.getSecondName() != null) {
-      result += person.getSecondName();
+    // Не хотим выдавать апи нашу фальшивую персону, поэтому конвертим начиная со второй
+    public List<String> getFirstNamesWithoutFake(List<Person> persons) {
+        // return persons.stream().filter(person -> person.getId() != -1).map(Person::getFirstName).collect(toList())
+        // TODO: точно ли первая персона фальшивая? возможно, лучше будет вот так ^^^
+        return persons.stream().skip(1).map(Person::getFirstName).collect(toList());
     }
 
-    if (person.getFirstName() != null) {
-      result += " " + person.getFirstName();
+    // получаем сет уникальных пользовательских имен
+    public Set<String> getUniqueFirstNamesWithoutFake(List<Person> persons) {
+        return new HashSet<>(getFirstNamesWithoutFake(persons));
     }
 
-    if (person.getSecondName() != null) {
-      result += " " + person.getSecondName();
+    // Для фронтов выдадим полное имя, а то сами не могут
+    public static String convertPersonToFullName(Person person) {
+        return Stream.of(person.getFirstName(), person.getMiddleName(), person.getSecondName())
+            .filter(Objects::nonNull)
+            .collect(joining(" "));
     }
-    return result;
-  }
 
-  // словарь id персоны -> ее имя
-  public Map<Integer, String> getPersonNames(Collection<Person> persons) {
-    Map<Integer, String> map = new HashMap<>(1);
-    for (Person person : persons) {
-      if (!map.containsKey(person.getId())) {
-        map.put(person.getId(), convertPersonToString(person));
-      }
+    // словарь id персоны -> ее полное имя
+    public Map<Integer, String> getPersonIdsToFullNamesMapping(Collection<Person> persons) {
+        return persons.stream().collect(toMap(Person::getId, Task8::convertPersonToFullName, (a, b) -> a));
     }
-    return map;
-  }
 
-  // есть ли совпадающие в двух коллекциях персоны?
-  public boolean hasSamePersons(Collection<Person> persons1, Collection<Person> persons2) {
-    boolean has = false;
-    for (Person person1 : persons1) {
-      for (Person person2 : persons2) {
-        if (person1.equals(person2)) {
-          has = true;
+    // есть ли совпадающие в двух коллекциях персоны?
+    public boolean hasSamePersons(Collection<Person> persons1, Collection<Person> persons2) {
+        return !Collections.disjoint(persons1, persons2);
+    }
+
+    public static long countEven(Stream<Integer> numbers) {
+        return numbers.filter(n -> n % 2 == 0).count();
+    }
+
+    @Override
+    public boolean check() {
+        List<Person> persons = List.of(
+            fakePerson,
+            new Person(0, "Oleg", Instant.now()),
+            new Person(1, "Anna", "Ivanova", Instant.now()),
+            new Person(2, "Anna", "Kuznetsova", Instant.now()),
+            new Person(3, "Anna", "Kuznetsova", Instant.now()) // это ОЧЕНЬ распространенное ИФ
+        );
+        if (!getFirstNamesWithoutFake(persons).equals(List.of("Oleg", "Anna", "Anna", "Anna"))) {
+            System.out.println("Task8::getFirstNamesWithoutFake is broken");
+            return false;
         }
-      }
+        if (!getUniqueFirstNamesWithoutFake(persons).equals(Set.of("Oleg", "Anna"))) {
+            System.out.println("Task8::getUniqueFirstNamesWithoutFake is broken");
+            return false;
+        }
+
+        if (countEven(Stream.of(1, 1, 2, 5, 4, 6)) != 3) {
+            System.out.println("Task8::countEven is broken");
+            return false;
+        }
+
+        if (!persons.stream().map(Task8::convertPersonToFullName).collect(toList())
+            .equals(List.of("fake first name fake middle name fake last name",
+                "Oleg", "Anna Ivanova", "Anna Kuznetsova", "Anna Kuznetsova"))) {
+            System.out.println("Task8::convertPersonToString is broken");
+            return false;
+        }
+
+        if (!getPersonIdsToFullNamesMapping(persons).equals(
+            Map.of(
+                -1, "fake first name fake middle name fake last name",
+                0, "Oleg",
+                1 ,"Anna Ivanova",
+                2,"Anna Kuznetsova",
+                3, "Anna Kuznetsova"
+            )
+        )) {
+            System.out.println("Task8::getPersonIdsToFullNamesMapping is broken");
+            return false;
+        }
+
+        if (hasSamePersons(List.of(persons.get(1), persons.get(3)), List.of(persons.get(2), persons.get(4)))
+            || !hasSamePersons(List.of(persons.get(1)), List.of(persons.get(1), persons.get(4)))) {
+            System.out.println("Task8::hasSamePersons is broken");
+
+            return false;
+        }
+        System.out.println("TGIF!");
+        Boolean codeSmellsGood = null;
+        boolean reviewerDrunk = true;
+        return reviewerDrunk || codeSmellsGood;
     }
-    return has;
-  }
-
-  //...
-  public long countEven(Stream<Integer> numbers) {
-    count = 0;
-    numbers.filter(num -> num % 2 == 0).forEach(num -> count++);
-    return count;
-  }
-
-  @Override
-  public boolean check() {
-    System.out.println("Слабо дойти до сюда и исправить Fail этой таски?");
-    boolean codeSmellsGood = false;
-    boolean reviewerDrunk = false;
-    return codeSmellsGood || reviewerDrunk;
-  }
 }

@@ -4,10 +4,11 @@ import hw.streamapi.common.Person;
 import hw.streamapi.common.PersonService;
 import hw.streamapi.common.Task;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
+import java.util.function.Function;
+
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 /*
 Задача 1
@@ -19,9 +20,15 @@ import java.util.stream.Collectors;
 public class Task1 implements Task {
 
     // !!! Редактируйте этот метод !!!
+    // так получше, чем за квадрат: получилась линия по памяти и линия по времени,
+    // потому что по факту надо не сортировать тут, а воспроизвести свыше данный порядок
     private List<Person> findOrderedPersons(List<Integer> personIds) {
         Set<Person> persons = PersonService.findPersons(personIds);
-        return Collections.emptyList();
+        Map<Integer, Person> idsToPersons = persons.stream()
+            .collect(toMap(Person::getId, Function.identity()));
+        return personIds.stream()
+            .map(idsToPersons::get)
+            .collect(toList());
     }
 
     @Override
@@ -30,7 +37,7 @@ public class Task1 implements Task {
 
         return findOrderedPersons(ids).stream()
             .map(Person::getId)
-            .collect(Collectors.toList())
+            .collect(toList())
             .equals(ids);
     }
 
