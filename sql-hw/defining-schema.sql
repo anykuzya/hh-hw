@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS area (
 CREATE TABLE IF NOT EXISTS university (
     university_id SERIAL PRIMARY KEY,
     university_name TEXT,
-    area_id INTEGER REFERENCES areas(area_id)
+    area_id INTEGER REFERENCES area(area_id)
 );
 CREATE TYPE education_level AS ENUM ('среднее', 'среднее специальное', 'неоконченное высшее',
                                      'высшее', 'бакалавр', 'магистр', 'кандидат наук', 'доктор наук');
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS candidate (
     candidate_id SERIAL PRIMARY KEY,
      -- договоримся, что кандидат указывает один город как свой, в то время как у работаодателя их может быть несколько
      -- так что тут прямая ссылка на область, а для работодателей мы сделаем отдельную табличку для связи many2many
-    area_id INTEGER REFERENCES areas(area_id),
+    area_id INTEGER REFERENCES area(area_id),
     relocation_acceptable BOOLEAN,
     candidate_full_name TEXT NOT NULL, -- считаем, что человек может не сообщить нам вообще никаких своих данных
                                       -- типа телефона/мыла/итд, но хотя бы имя мы о нём хотим знать
@@ -54,19 +54,20 @@ CREATE TABLE IF NOT EXISTS vacancy (
     employer_id INTEGER REFERENCES employer(employer_id) NOT NULL,
     position_name VARCHAR(300) NOT NULL,
     opened_at DATE NOT NULL,
+    area_id INTEGER REFERENCES area(area_id) NOT NUll, -- вопрос: как здесь установить ограничение на значение такое,
+    -- что у вакансии могут быть только те города, у которых существует запись с тем же employer в employer_to_area?
+    -- другими словами, чтобы у работодателя не могло быть вакансии  в том городе, где нет этого работодателя
     compensation_from INTEGER,
     compensation_to INTEGER,
-    compensation_gross BOOLEAN, -- TODO убрать этот коммент
-    -- true - до вычета, false -- после. то есть на руки compensation * 0.87, если тут true
+    compensation_gross BOOLEAN, -- true - до вычета, false -- после. то есть на руки compensation * 0.87, если тут true
     other TEXT -- здесь всякие подробности про вакансию, которые не хочется расписывать подробно в рамках этого дз
 );
-
 CREATE TYPE conversation_type AS ENUM ('отклик', 'приглашение'); -- когда кандидат апплаится на вакансию, это отклик
                                             -- когда hr нашел резюме и предлагает человеку вакансию, это приглашение
 CREATE TABLE IF NOT EXISTS conversation (
     conversation_id SERIAL PRIMARY KEY,
-    vacancy INTEGER REFERENCES vacancy(vacancy_id) NOT NULL,
-    resume INTEGER REFERENCES resume(resume_id) NOT NULL,
+    vacancy_id INTEGER REFERENCES vacancy(vacancy_id) NOT NULL,
+    resume_id INTEGER REFERENCES resume(resume_id) NOT NULL,
     type conversation_type NOT NULL,
     contacted_at DATE NOT NULL
 );
