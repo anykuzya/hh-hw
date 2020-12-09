@@ -38,3 +38,16 @@ WITH vacancies_per_employer AS (
     SELECT count(vacancy_id) AS vacancies_amount, company_name FROM vacancy
     INNER JOIN employer ON vacancy.employer_id = employer.employer_id GROUP BY company_name
 ) SELECT percentile_cont(0.5) WITHIN GROUP (ORDER BY vacancies_amount) FROM vacancies_per_employer;
+
+-- Вывести топ-5 компаний, получивших максимальное количество откликов на одну вакансию, в порядке убывания откликов.
+-- Если более 5 компаний получили одинаковое максимальное количество откликов, отсортировать по алфавиту и вывести только 5.
+WITH conversations_per_vacancy_to_employer_id AS (
+    SELECT count(v.vacancy_id) AS conversation_amount, employer_id
+    FROM conversation
+    INNER JOIN vacancy v ON v.vacancy_id = conversation.vacancy_id
+    GROUP BY v.vacancy_id
+) SELECT company_name FROM
+    (SELECT DISTINCT company_name, conversation_amount FROM conversations_per_vacancy_to_employer_id as cpvtei
+    INNER JOIN employer e ON e.employer_id = cpvtei.employer_id
+    ORDER BY conversation_amount DESC, company_name
+    LIMIT 5) as top_5_companies_most_interest_vacancies_conversation_amount
