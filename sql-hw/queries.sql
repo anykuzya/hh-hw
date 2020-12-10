@@ -3,12 +3,15 @@
 -- сортировать по дате создания вакансии от новых к более старым.
 
 WITH ten_vacancies_to_area_names AS (
-    SELECT position_name, area_name, employer_id FROM vacancy
-    INNER JOIN area ON area.area_id = vacancy.area_id
+    SELECT position_name, area_name, e.company_name
+    FROM vacancy v
+        INNER JOIN area a ON a.area_id = v.area_id
+        INNER JOIN employer e ON e.employer_id = v.employer_id
+    WHERE compensation_to IS NULL AND compensation_from IS NULL
     ORDER BY opened_at DESC
     LIMIT 10
 ) SELECT position_name, area_name, company_name
-FROM ten_vacancies_to_area_names JOIN employer ON ten_vacancies_to_area_names.employer_id = employer.employer_id;
+FROM ten_vacancies_to_area_names;
 
 -- Вывести среднюю максимальную зарплату в вакансиях, среднюю минимальную и среднюю среднюю (compensation_to - compensation_from) ???
 -- наверное, средняя средняя это всё-таки (compensation_to + compensation_from) / 2 ?
@@ -35,8 +38,10 @@ FROM gross_salary_range;
 
 -- Вывести медианное количество вакансий на компанию. Использовать percentile_cont.
 WITH vacancies_per_employer AS (
-    SELECT count(vacancy_id) AS vacancies_amount, company_name FROM vacancy
-    INNER JOIN employer ON vacancy.employer_id = employer.employer_id GROUP BY company_name
+    SELECT count(vacancy_id) AS vacancies_amount, company_name
+    FROM vacancy v
+        INNER JOIN employer e ON e.employer_id = v.employer_id
+    GROUP BY company_name
 ) SELECT percentile_cont(0.5) WITHIN GROUP (ORDER BY vacancies_amount) FROM vacancies_per_employer;
 
 -- Вывести топ-5 компаний, получивших максимальное количество откликов на одну вакансию, в порядке убывания откликов.
@@ -44,10 +49,20 @@ WITH vacancies_per_employer AS (
 WITH conversations_per_vacancy_to_employer_id AS (
     SELECT count(v.vacancy_id) AS conversation_amount, employer_id
     FROM conversation
-    INNER JOIN vacancy v ON v.vacancy_id = conversation.vacancy_id
+        INNER JOIN vacancy v ON v.vacancy_id = conversation.vacancy_id
     GROUP BY v.vacancy_id
 ) SELECT company_name FROM
-    (SELECT DISTINCT company_name, conversation_amount FROM conversations_per_vacancy_to_employer_id as cpvtei
-    INNER JOIN employer e ON e.employer_id = cpvtei.employer_id
+    (SELECT DISTINCT company_name, conversation_amount
+    FROM conversations_per_vacancy_to_employer_id AS cpvtei
+        INNER JOIN employer e ON e.employer_id = cpvtei.employer_id
     ORDER BY conversation_amount DESC, company_name
-    LIMIT 5) as top_5_companies_most_interest_vacancies_conversation_amount
+    LIMIT 5) AS top_5_companies_most_interest_vacancies_conversation_amount;
+
+-- Вывести минимальное и максимальное время от создания вакансии до первого отклика для каждого города.
+SELECT area_name, max(time_to_conversation), min(time_to_conversation) FROM (
+    SELECT area_name, c.contacted_at - v.opened_at AS time_to_conversation
+    FROM conversation c
+        INNER JOIN vacancy v ON v.vacancy_id = c.vacancy_id
+        INNER JOIN area a ON a.area_id = v.area_id
+    ) AS area_to_reply_times
+GROUP BY area_name
