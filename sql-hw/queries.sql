@@ -2,16 +2,13 @@
 -- имя работодателя для первых 10 вакансий, у которых не указана зарплата,
 -- сортировать по дате создания вакансии от новых к более старым.
 
-WITH ten_vacancies_to_area_names AS (
-    SELECT position_name, area_name, e.company_name
-    FROM vacancy v
-        INNER JOIN area a ON a.area_id = v.area_id
-        INNER JOIN employer e ON e.employer_id = v.employer_id
-    WHERE compensation_to IS NULL AND compensation_from IS NULL
-    ORDER BY opened_at DESC
-    LIMIT 10
-) SELECT position_name, area_name, company_name
-FROM ten_vacancies_to_area_names;
+SELECT position_name, area_name, e.company_name
+FROM vacancy v
+    INNER JOIN area a ON a.area_id = v.area_id
+    INNER JOIN employer e ON e.employer_id = v.employer_id
+WHERE compensation_to IS NULL AND compensation_from IS NULL
+ORDER BY opened_at DESC
+LIMIT 10;
 
 -- Вывести среднюю максимальную зарплату в вакансиях, среднюю минимальную и среднюю среднюю (compensation_to - compensation_from) ???
 -- наверное, средняя средняя это всё-таки (compensation_to + compensation_from) / 2 ?
@@ -59,10 +56,15 @@ WITH conversations_per_vacancy_to_employer_id AS (
     LIMIT 5) AS top_5_companies_most_interest_vacancies_conversation_amount;
 
 -- Вывести минимальное и максимальное время от создания вакансии до первого отклика для каждого города.
-SELECT area_name, max(time_to_conversation), min(time_to_conversation) FROM (
-    SELECT area_name, c.contacted_at - v.opened_at AS time_to_conversation
-    FROM conversation c
-        INNER JOIN vacancy v ON v.vacancy_id = c.vacancy_id
-        INNER JOIN area a ON a.area_id = v.area_id
-    ) AS area_to_reply_times
-GROUP BY area_name
+SELECT area_name, max(time_to_first_conversation), min(time_to_first_conversation)
+FROM (SELECT area_name, min(c.contacted_at - v.opened_at) AS time_to_first_conversation, v.vacancy_id
+        FROM conversation c
+            INNER JOIN vacancy v ON v.vacancy_id = c.vacancy_id
+            INNER JOIN area a ON a.area_id = v.area_id
+        WHERE type = 'отклик' -- это если мы хотим ограничить таким условиеми не рассматривать случаи, когда кандидата
+                              -- приглашают на работу (в моей базе выборка будет на 2 города больше, если закомментить это условие)
+    GROUP BY v.vacancy_id, area_name
+) AS area_to_first_reply
+GROUP BY area_name;
+-- в моей базе во всех городах кроме москвы и питера нет откликов на разные вакансии (а есть только на одну,
+-- соответственно, и ПЕРВЫЙ отклик на эту вакансию тоже один), поэтому max и min совпадают для остальных городов

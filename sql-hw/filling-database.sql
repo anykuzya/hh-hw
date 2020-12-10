@@ -35,7 +35,7 @@ VALUES (1, 1), -- hh в москве,
        (6, 7), (7, 6), (8, 6), (9, 1), (10, 5), (11, 5), (12, 6), (13, 9);
 
 
-INSERT INTO vacancy (employer_id, position_name, opened_at, compensation_from, compensation_to, compensation_gross,area_id, other)
+INSERT INTO vacancy (employer_id, position_name, opened_at, compensation_from, compensation_to, compensation_gross, area_id, other)
 VALUES (1, 'Младший программист', make_date(2020, 11, 30), NULL, 87000, false, 1, NULL),
        (1, 'Ученик в школе программистов', make_date(2020, 08, 15), 0, 0, true, 1, 'старт школы в ноябре'),
        (1, 'Senior Java Developer', make_date(2020, 12, 2), 150000, 200000, true, 1, NULL),
@@ -108,6 +108,7 @@ INSERT INTO conversation (vacancy_id, resume_id, type, contacted_at)
 VALUES (2, 3, 'отклик', make_date(2020, 8, 20)),
        (2, 7, 'отклик', make_date(2020, 8, 25)),
        (9, 6, 'приглашение', make_date(2020, 11, 1)),
+       (4, 9, 'отклик', make_date(2020, 11, 29)),
        (5, 7, 'отклик', make_date(2020, 11, 27)),
        (5, 9, 'отклик', make_date(2020, 11, 28)),
        (6, 9, 'отклик', make_date(2020, 11, 24)),
