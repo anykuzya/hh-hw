@@ -1,0 +1,821 @@
+{
+	"info": {
+		"_postman_id": "3b545dc9-c580-4104-9299-69f3a3ae5684",
+		"name": "hh-api-vacancies-text-testing",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "empty text search matches request without search",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "bfbf4db1-9b0d-406c-9f33-c39ffb43f37f",
+						"exec": [
+							"pm.sendRequest(\"https://api.hh.ru/vacancies\", function (err, response) {",
+							"    pm.environment.set(\"response_without_search\", response.json());",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "bd5bde52-0204-45be-b7c0-6484079c94d6",
+						"exec": [
+							"pm.test(\"Response for searching empty string is the same that without any search\", function () {",
+							"    const responseJson = pm.response.json();",
+							"    const responseWithoutSearchJson = pm.environment.get(\"response_without_search\");",
+							"    pm.expect(responseJson == responseWithoutSearchJson);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "api.hh.ru/vacancies?text=",
+					"host": [
+						"api",
+						"hh",
+						"ru"
+					],
+					"path": [
+						"vacancies"
+					],
+					"query": [
+						{
+							"key": "text",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "abracadabra text search response is empty",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "0669051b-af76-4476-9cee-4dfd3284d552",
+						"exec": [
+							"pm.test(\"There is no matching vacancies for abracadabra\", function () {",
+							"    const responseJson = pm.response.json();",
+							"    pm.expect(responseJson.items).to.be.empty;",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "6825487e-487c-469c-bf86-5169d06febbe",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "api.hh.ru/vacancies?text=abracadabra",
+					"host": [
+						"api",
+						"hh",
+						"ru"
+					],
+					"path": [
+						"vacancies"
+					],
+					"query": [
+						{
+							"key": "text",
+							"value": "abracadabra"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "search text \"программист\" (strictly matches)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8f8f9f87-8883-456e-9d03-1adee8f13568",
+						"exec": [
+							"pm.test(\"Body matches string \\\"программист\\\"\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"программист\");",
+							"});",
+							"",
+							"pm.test(\"Each item in response for search \\\"!программист\\\" matches string \\\"программист\\\"\", function() {",
+							"    console.log(pm.response.json().items)",
+							"    pm.response.json().items.forEach ( item => {",
+							"        // we have case insensitive search, aren't we?",
+							"        pm.expect(JSON.stringify(item).toLowerCase()).to.include(\"программист\");",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "api.hh.ru/vacancies?text=!программист",
+					"host": [
+						"api",
+						"hh",
+						"ru"
+					],
+					"path": [
+						"vacancies"
+					],
+					"query": [
+						{
+							"key": "text",
+							"value": "!программист"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "search  text \"программист\" (synonyms matches included)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "7d500f5c-28c3-46b2-be86-86abe6914a86",
+						"exec": [
+							"pm.test(\"Body matches string \\\"программист\\\"\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"программист\");",
+							"});",
+							"",
+							"pm.test(\"Each item in response for search \\\"программист\\\" matches string \\\"программист\\\" or it's synonyms\", function() {",
+							"    pm.response.json().items.forEach ( item => {",
+							"        // т.к. не нашла способа сделать что-то вроде <...>.include.oneOf([\"программист\", \"разработчик\"])",
+							"        // - здесь летит ассерт, как будто я использую не .to.include, a .to.be",
+							"        // или <...>.include.any(\"программист\", \"разработчик\"), нагородила больше проверок и не очень информативный ассерт",
+							"        // бы ла бы очень рада узнать, как это можно было бы сделать проще и читаемее",
+							"",
+							"        if (JSON.stringify(item).toLowerCase().includes(\"программист\")) {",
+							"            return;",
+							"        } else if (JSON.stringify(item).toLowerCase().includes(\"разработчик\")){",
+							"            return;",
+							"        } else {",
+							"            console.log(\"ни одного синонима слова \\\"программист\\\"\");",
+							"            pm.expect(true).to.be.false;",
+							"        }",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "api.hh.ru/vacancies?text=программист",
+					"host": [
+						"api",
+						"hh",
+						"ru"
+					],
+					"path": [
+						"vacancies"
+					],
+					"query": [
+						{
+							"key": "text",
+							"value": "программист"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "search numbers",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "68010e27-fddd-44e3-83ca-269d8ce9e8d6",
+						"exec": [
+							"pm.test(\"Body matches string \\\"12345\\\"\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"12345\");",
+							"});",
+							"",
+							"// следующий тест падает, видимо, потому, что нет матчей с числом 12345, и апи отдает результат с похожими строчками",
+							"// pm.test(\"Each item in response for search \\\"!12345\\\" matches string \\\"12345\\\"\", function() {",
+							"//     console.log(pm.response.json().items)",
+							"//     pm.response.json().items.forEach ( item => {",
+							"//         pm.expect(JSON.stringify(item).toLowerCase()).to.include(\"12345\");",
+							"//     })",
+							"// })"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "api.hh.ru/vacancies?text=12345",
+					"host": [
+						"api",
+						"hh",
+						"ru"
+					],
+					"path": [
+						"vacancies"
+					],
+					"query": [
+						{
+							"key": "text",
+							"value": "12345"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "search something with symbols",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c45cdb3a-82a5-4693-a167-60616920ae2f",
+						"exec": [
+							"pm.test(\"Body matches string \\\"@gmail\\\"\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"@gmail\");",
+							"});",
+							"",
+							"// этот тест не проходит, и тут не очень понятно, почему апи отдает вакансии, в тексте которых не всегда есть искомая строка.",
+							"// видимо, тут, как и с поиском числа, есть какой-то опечаточник",
+							"pm.test(\"Each item in response for search \\\"@gmail\\\" matches string \\\"@gmail\\\"\", function() {",
+							"    console.log(pm.response.json().items)",
+							"    pm.response.json().items.forEach ( item => {",
+							"        pm.expect(JSON.stringify(item).toLowerCase()).to.include(\"@gmail\");",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "api.hh.ru/vacancies?text=@gmail",
+					"host": [
+						"api",
+						"hh",
+						"ru"
+					],
+					"path": [
+						"vacancies"
+					],
+					"query": [
+						{
+							"key": "text",
+							"value": "@gmail"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "search basics collocation",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "de957828-9d5e-42ef-b862-131ea5eccfa9",
+						"exec": [
+							"pm.test(\"Body matches string \\\"senior developer\\\"\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"senior developer\");",
+							"});",
+							"",
+							"pm.test(\"Each item in response for search \\\"senior developer\\\" matches string \\\"senior developer\\\" or synonyms\", function() {",
+							"    console.log(pm.response.json().items)",
+							"    pm.response.json().items.forEach ( item => {",
+							"        pm.expect(JSON.stringify(item).toLowerCase()).to.include(\"senior\");",
+							"        if (JSON.stringify(item).toLowerCase().includes(\"developer\")) {",
+							"            return;",
+							"        }",
+							"        if (JSON.stringify(item).toLowerCase().includes(\"программист\")) {",
+							"            return;",
+							"        } else if (JSON.stringify(item).toLowerCase().includes(\"разработчик\")){",
+							"            return;",
+							"        } else {",
+							"            console.log(\"ни одного синонима слова \\\"developer\\\"\");",
+							"            pm.expect(true).to.be.false;",
+							"        }",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "api.hh.ru/vacancies?text=senior developer",
+					"host": [
+						"api",
+						"hh",
+						"ru"
+					],
+					"path": [
+						"vacancies"
+					],
+					"query": [
+						{
+							"key": "text",
+							"value": "senior developer"
+						}
+					]
+				},
+				"description": "It's expected that response could contain searched text with some unmentioned words between it's words"
+			},
+			"response": []
+		},
+		{
+			"name": "search basics collocation, strict match",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "3c2c03d5-559c-4416-a280-fcc8bf176944",
+						"exec": [
+							"pm.test(\"Body matches string \\\"senior developer\\\"\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"senior developer\");",
+							"});",
+							"// этот тест тоже падает, потому что находит вакансии в которых, например, такое:  \"Senior Full stack (.Net and Angular) developer Remote\"",
+							"// но, кажется, восклицательным знаком перед кавычками в запросе, я обозначила, что хочу только полное совпадение, разве нет?",
+							"pm.test(\"Each item in response for search !\\\"senior developer\\\" matches string \\\"senior developer\\\"\", function() {",
+							"    pm.response.json().items.forEach ( item => {",
+							"        pm.expect(JSON.stringify(item).toLowerCase()).to.include(\"senior developer\");",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "api.hh.ru/vacancies?text=!\"senior developer\"",
+					"host": [
+						"api",
+						"hh",
+						"ru"
+					],
+					"path": [
+						"vacancies"
+					],
+					"query": [
+						{
+							"key": "text",
+							"value": "!\"senior developer\""
+						}
+					]
+				},
+				"description": "It's expected that response could contain searched text with some unmentioned words between it's words"
+			},
+			"response": []
+		},
+		{
+			"name": "search wildcard",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "2e1b78ba-225c-49eb-b5fb-5092ee33370d",
+						"exec": [
+							"pm.test(\"Body matches string \\\"dev\\\"\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"dev\");",
+							"});",
+							"",
+							"pm.test(\"Each item in response for search \\\"dev*\\\" matches string \\\"dev*\\\"\", function() {",
+							"    pm.response.json().items.forEach ( item => {",
+							"        pm.expect(JSON.stringify(item).toLowerCase()).to.include(\"dev\");",
+							"        console.log(item)",
+							"        if (JSON.stringify(item).toLowerCase().includes(\"developer\")) {",
+							"            return;",
+							"        }",
+							"        if (JSON.stringify(item).toLowerCase().includes(\"development\")) {",
+							"            return;",
+							"        } else if (JSON.stringify(item).toLowerCase().includes(\"devops\")){",
+							"            return;",
+							"        } else {",
+							"            console.log(\"ни одного слова на \\\"dev\\\"\");",
+							"            pm.expect(true).to.be.false;",
+							"        }",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "api.hh.ru/vacancies?text=dev*",
+					"host": [
+						"api",
+						"hh",
+						"ru"
+					],
+					"path": [
+						"vacancies"
+					],
+					"query": [
+						{
+							"key": "text",
+							"value": "dev*"
+						}
+					]
+				},
+				"description": "It's expected that response could contain searched text with some unmentioned words between it's words"
+			},
+			"response": []
+		},
+		{
+			"name": "search one of two words",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "9a3808ce-4092-4f0a-a0b8-3ea2bf9ab0f5",
+						"exec": [
+							"pm.test(\"Each item in response for search \\\"java or kotlin\\\" matches string \\\"java\\\" or \\\"kotlin\\\"\", function() {",
+							"    pm.response.json().items.forEach ( item => {",
+							"        if (JSON.stringify(item).toLowerCase().includes(\"java\")) {",
+							"            return;",
+							"        } else if (JSON.stringify(item).toLowerCase().includes(\"kotlin\")){",
+							"            return;",
+							"        } else {",
+							"            console.log(\"ни одного из требуемых слов не нашлось в вакансии:\");",
+							"            console.log(item);",
+							"            pm.expect(true).to.be.false;",
+							"        }",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "api.hh.ru/vacancies?text=java or kotlin",
+					"host": [
+						"api",
+						"hh",
+						"ru"
+					],
+					"path": [
+						"vacancies"
+					],
+					"query": [
+						{
+							"key": "text",
+							"value": "java or kotlin"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "search first word excluding second",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "88290cb7-fe60-483f-ab35-c77b1d02373c",
+						"exec": [
+							"pm.test(\"Each item in response for search \\\"java NOT kotlin\\\" matches string \\\"java\\\"\", function() {",
+							"    pm.response.json().items.forEach ( item => {",
+							"        pm.expect(JSON.stringify(item).toLowerCase()).to.include(\"java\");",
+							"    })",
+							"})",
+							"pm.test(\"Each item in response for search \\\"java NOT kotlin\\\" DOES NOT match string \\\"kotlin\\\"\", function() {",
+							"    pm.response.json().items.forEach ( item => {",
+							"        pm.expect(JSON.stringify(item).toLowerCase()).to.not.include(\"kotlin\");",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "api.hh.ru/vacancies?text=java NOT kotlin",
+					"host": [
+						"api",
+						"hh",
+						"ru"
+					],
+					"path": [
+						"vacancies"
+					],
+					"query": [
+						{
+							"key": "text",
+							"value": "java NOT kotlin"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "search both of two words",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "e4cd1659-8193-4cb2-a8d6-6176c94ea1a8",
+						"exec": [
+							"pm.test(\"Each item in response for search \\\"java AND kotlin\\\" matches string \\\"java\\\"\", function() {",
+							"    pm.response.json().items.forEach ( item => {",
+							"        pm.expect(JSON.stringify(item).toLowerCase()).to.include(\"java\");",
+							"        pm.expect(JSON.stringify(item).toLowerCase()).to.include(\"kotlin\");",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "api.hh.ru/vacancies?text=java AND kotlin",
+					"host": [
+						"api",
+						"hh",
+						"ru"
+					],
+					"path": [
+						"vacancies"
+					],
+					"query": [
+						{
+							"key": "text",
+							"value": "java AND kotlin"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "search by field (without using search_field parameter)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "447b5083-ad23-4e0f-8e13-7d372b14bde5",
+						"exec": [
+							"pm.test(\"Body matches string \\\"HeadHunter\\\"\", function () {",
+							"    pm.expect(pm.response.text().toLowerCase()).to.include(\"headhunter\");",
+							"});",
+							"",
+							"pm.test(\"Each item in response for search \\\"COMPANY_NAME:Headhunter\\\" has \\\"Headhunter\\\" as company name\", function() {",
+							"    pm.response.json().items.forEach ( item => {",
+							"        // сначала хотела сделать тут .to.eq, но тк в выдаче есть еще HeadHunter::Казахстан, так что будем смотреть на наличие подстроки",
+							"        pm.expect(item.employer.name).to.include(\"HeadHunter\");",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "api.hh.ru/vacancies?text=COMPANY_NAME:Headhunter",
+					"host": [
+						"api",
+						"hh",
+						"ru"
+					],
+					"path": [
+						"vacancies"
+					],
+					"query": [
+						{
+							"key": "text",
+							"value": "COMPANY_NAME:Headhunter"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "sql injection",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c59c2577-64cd-49b7-a8b2-acb88a11a8b6",
+						"exec": [
+							"//не очень понятно, что здесь тестировать, потому что какая-то выдача на основе запроса находится, но я не понимаю, какая за этим логика.",
+							"// допустим, просто проверим, что запрос не пустой (скорее всего это значит, что мы ничего не смогли дропнуть)",
+							"pm.test(\"There is at least something in response\", function () {",
+							"    const responseJson = pm.response.json();",
+							"    pm.expect(responseJson.items).to.be.not.empty;",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "api.hh.ru/vacancies?text=Robert'); DROP TABLE STUDENTS; --",
+					"host": [
+						"api",
+						"hh",
+						"ru"
+					],
+					"path": [
+						"vacancies"
+					],
+					"query": [
+						{
+							"key": "text",
+							"value": "Robert'); DROP TABLE STUDENTS; --"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "javascript injection",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "53814214-8e6b-443c-a895-b0a385089a38",
+						"exec": [
+							"//не очень понятно, что здесь тестировать, потому что какая-то выдача на основе запроса находится, но я не понимаю, какая за этим логика.",
+							"// допустим, просто проверим, что запрос пустой (скорее всего это значит, что мы ничего не заинжектили или нас заигнорили за скрипт)",
+							"pm.test(\"There is at least something in response\", function () {",
+							"    const responseJson = pm.response.json();",
+							"    pm.expect(responseJson.items).to.be.empty;",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "api.hh.ru/vacancies?text=<script>console.log(\"hello world\")</script>",
+					"host": [
+						"api",
+						"hh",
+						"ru"
+					],
+					"path": [
+						"vacancies"
+					],
+					"query": [
+						{
+							"key": "text",
+							"value": "<script>console.log(\"hello world\")</script>"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "e0e7bb33-fd35-46c6-9abd-16d25e731621",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "16d39925-250a-430b-8198-64c157bcb9fd",
+				"type": "text/javascript",
+				"exec": [
+					"pm.test(\"Status is ok (200)\", function () {",
+					"    pm.response.to.have.status(200);",
+					"    pm.response.to.be.ok;",
+					"});",
+					"pm.test(\"Response is json, items in response is an array\", function() {",
+					"    pm.response.to.be.json;",
+					"    pm.expect(pm.response.json().items).to.be.a(\"array\");",
+					"});"
+				]
+			}
+		}
+	],
+	"protocolProfileBehavior": {}
+}
