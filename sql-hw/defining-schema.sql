@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS candidate (
     experience_years SMALLINT, -- не будем брать четыре байта инта на то, что может быть компактнее https://stackoverflow.com/a/697893
     expected_compensation INTEGER -- ради чего мы тут все собрались (тут smallint может и не хватить!)
 );
-CREATE TABLE candidates_to_universities (
+CREATE TABLE IF NOT EXISTS candidates_to_universities (
     candidate_id INTEGER REFERENCES candidate(candidate_id) NOT NULL,
     university_id INTEGER REFERENCES university(university_id) NOT NULL,
     graduation_year SMALLINT

@@ -46,17 +46,22 @@ FROM vacancies_per_employer;
 -- Вывести топ-5 компаний, получивших максимальное количество откликов на одну вакансию, в порядке убывания откликов.
 -- Если более 5 компаний получили одинаковое максимальное количество откликов, отсортировать по алфавиту и вывести только 5.
 WITH conversations_per_vacancy_to_employer_id AS (
-    SELECT count(v.vacancy_id) AS conversation_amount, employer_id
-    FROM conversation
-        INNER JOIN vacancy v ON v.vacancy_id = conversation.vacancy_id
+    SELECT count(c.conversation_id) AS conversation_amount, employer_id
+    FROM conversation c
+        INNER JOIN vacancy v ON v.vacancy_id = c.vacancy_id
+    WHERE type = 'response'
     GROUP BY v.vacancy_id
-) SELECT company_name FROM
-    (SELECT DISTINCT company_name, conversation_amount
-    FROM conversations_per_vacancy_to_employer_id AS cpvtei
-        INNER JOIN employer e ON e.employer_id = cpvtei.employer_id
-    ORDER BY conversation_amount DESC, company_name
-    LIMIT 5)
-AS top_5_companies_most_interest_vacancies_conversation_amount;
+)
+SELECT e.company_name
+FROM conversations_per_vacancy_to_employer_id AS cpvtei
+    RIGHT JOIN employer e ON e.employer_id = cpvtei.employer_id
+GROUP BY e.employer_id
+ORDER BY CASE
+           WHEN max(conversation_amount) IS NULL
+               THEN 0
+               ELSE max(conversation_amount)
+               END DESC, company_name
+LIMIT 5;
 
 -- Вывести минимальное и максимальное время от создания вакансии до первого отклика для каждого города.
 WITH vacancy_to_area_and_first_response AS (
