@@ -37,8 +37,8 @@ FROM gross_salary_range;
 WITH vacancies_per_employer AS (
     SELECT count(vacancy_id) AS vacancies_amount, company_name
     FROM vacancy v
-        INNER JOIN employer e ON e.employer_id = v.employer_id
-    GROUP BY company_name
+        RIGHT JOIN employer e ON e.employer_id = v.employer_id
+    GROUP BY e.employer_id
 )
 SELECT percentile_cont(0.5) WITHIN GROUP (ORDER BY vacancies_amount)
 FROM vacancies_per_employer;
@@ -59,20 +59,22 @@ WITH conversations_per_vacancy_to_employer_id AS (
 AS top_5_companies_most_interest_vacancies_conversation_amount;
 
 -- Вывести минимальное и максимальное время от создания вакансии до первого отклика для каждого города.
-WITH area_to_first_reply AS (
-    SELECT area_name,
-           min(c.contacted_at - v.opened_at) AS time_to_first_conversation,
-           v.vacancy_id
+WITH vacancy_to_area_and_first_response AS (
+    SELECT v.vacancy_id,
+           a.area_name,
+           a.area_id,
+           min(c.contacted_at - v.opened_at) AS time_to_first_conversation
     FROM conversation c
         INNER JOIN vacancy v ON v.vacancy_id = c.vacancy_id
         INNER JOIN area a ON a.area_id = v.area_id
     WHERE type = 'response' -- это если мы хотим ограничить таким условием не рассматривать случаи, когда кандидата
-                            -- приглашают на работу (в моей базе выборка будет на 2 города больше, если закомментить это условие)
-    GROUP BY v.vacancy_id, area_name)
+          -- приглашают на работу (в моей базе выборка будет на 2 города больше, если закомментить это условие)
+    GROUP BY v.vacancy_id , a.area_id
+)
 SELECT area_name,
        max(time_to_first_conversation),
        min(time_to_first_conversation)
-FROM area_to_first_reply
-GROUP BY area_name;
+FROM vacancy_to_area_and_first_response
+GROUP BY area_id, area_name;
 -- в моей базе во всех городах кроме москвы и питера нет откликов на разные вакансии (а есть только на одну,
 -- соответственно, и ПЕРВЫЙ отклик на эту вакансию тоже один), поэтому max и min совпадают для остальных городов

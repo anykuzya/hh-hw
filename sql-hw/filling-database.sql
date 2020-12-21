@@ -1,6 +1,6 @@
 INSERT INTO area (area_name)
 VALUES ('Москва'), ('Санкт Петербург'), ('Казань'), ('Воронеж'),
-       ('Тверь'), ('Липецк'), ('Тула'), ('Новосибирск'), ('Уфа'),('Нижний Новгород');
+       ('Тверь'), ('Липецк'), ('Тула'), ('Новосибирск'), ('Уфа'),('Нижний Новгород'), ('Москва'); -- ага, ещё одна: https://tinyurl.com/y7yorae5
 
 INSERT INTO university (university_name, area_id)
 VALUES
@@ -25,14 +25,14 @@ VALUES ('HeadHunter', 'HeadHunter — крупнейшая российская 
        ('Mail.ru', 'Mail.ru — русскоязычный интернет-портал, принадлежащий технологической компании Mail.ru Group.'),
        ('Telegram', 'Telegram — кроссплатформенный мессенджер, позволяющий обмениваться сообщениями и медиафайлами многих форматов. Клиентские приложения Telegram доступны для Android, iOS, Windows Phone, Windows, macOS и GNU/Linux.'),
        ('ГУЗ "Родильный дом №1 г.Тулы"', NULL), ('Детский сад "Солнышко"', NULL), ('МБОУ СОШ №14 г. Липецка', 'школа'), ('НИУ ВШЭ', 'Высшая школа экономики'),
-       ('Рога и Копыта', NULL), ('Копыта и Рога', 'Не путать с «Рога и копыта»!!!'), ('Шарашкина контора', NULL), ('Башкирский мёд', 'Семейная пасека');
+       ('Рога и Копыта', NULL), ('Копыта и Рога', 'Не путать с «Рога и копыта»!!!'), ('Шарашкина контора', NULL), ('Башкирский мёд', 'Семейная пасека'), ('Рога и Копыта', 'ага, ещё одни');
 
 INSERT INTO employer_to_area (employer_id, area_id)
 VALUES (1, 1), -- hh в москве,
        (2, 2), (2, 1), (2, 8), -- jb в питере, москве, новосибе
        (3, 1), (3, 2), (3, 3), (3, 10), (3, 8), -- яндекс в москве, питере, казани, НН, новосибе
        (4, 1), (4, 2), (4, 4), (4, 10), -- мейл в москве, питере, воронеже и НН
-       (6, 7), (7, 6), (8, 6), (9, 1), (10, 5), (11, 5), (12, 6), (13, 9);
+       (6, 7), (7, 6), (8, 6), (9, 1), (10, 5), (11, 5), (12, 6), (13, 9), (14, 11);
 
 
 INSERT INTO vacancy (employer_id, position_name, opened_at, compensation_from, compensation_to, compensation_gross, area_id, other)
@@ -63,7 +63,8 @@ VALUES (1, 'Младший программист', make_date(2020, 11, 30), NUL
        (10, 'Рогоносец', make_date(2020, 11, 27), NULL, NULL, false, 5, NULL),
        (11, 'Бездельник', make_date(2020, 11, 26), NULL, NULL, false, 5, NULL),
        (12, 'Выдаватель филькиных грамот', make_date(2020, 11, 25), NULL, NULL, false, 6, NULL),
-       (13, 'Пасечник', make_date(2020, 09, 23), NULL, NULL, false, 9, NULL);
+       (13, 'Пасечник', make_date(2020, 09, 23), NULL, NULL, false, 9, NULL),
+       (14, 'Лентяй', make_date(2020, 11, 26), NULL, NULL, false, 11, NULL);
 
 INSERT INTO candidate (area_id, relocation_acceptable, candidate_full_name, candidate_birthday,
                        phone, email, education_level, experience_years, expected_compensation)
@@ -125,4 +126,5 @@ VALUES (2, 3, 'response', make_date(2020, 8, 20)),
        (22, 7, 'response', make_date(2020, 12, 10)),
        (22, 12, 'response', make_date(2020, 11, 30)),
        (23, 15, 'response', make_date(2020, 12, 9)),
-       (23, 13, 'response', make_date(2020, 12, 10));
+       (23, 13, 'response', make_date(2020, 12, 10)),
+       (25, 15, 'response', make_date(2020, 12, 22));
