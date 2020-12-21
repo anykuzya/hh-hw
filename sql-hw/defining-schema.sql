@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS university (
     university_name TEXT,
     area_id INTEGER REFERENCES area(area_id)
 );
+-- todo rewrite in english
 CREATE TYPE education_level AS ENUM ('среднее', 'среднее специальное', 'неоконченное высшее',
                                      'высшее', 'бакалавр', 'магистр', 'кандидат наук', 'доктор наук');
 CREATE TABLE IF NOT EXISTS candidate (
@@ -62,8 +63,8 @@ CREATE TABLE IF NOT EXISTS vacancy (
     compensation_gross BOOLEAN, -- true - до вычета, false -- после. то есть на руки compensation * 0.87, если тут true
     other TEXT -- здесь всякие подробности про вакансию, которые не хочется расписывать подробно в рамках этого дз
 );
-CREATE TYPE conversation_type AS ENUM ('отклик', 'приглашение'); -- когда кандидат апплаится на вакансию, это отклик
-                                            -- когда hr нашел резюме и предлагает человеку вакансию, это приглашение
+CREATE TYPE conversation_type AS ENUM ('response', 'invite'); -- когда кандидат апплаится на вакансию, это response
+                                            -- когда hr нашел резюме и предлагает человеку вакансию, это invite
 CREATE TABLE IF NOT EXISTS conversation (
     conversation_id SERIAL PRIMARY KEY,
     vacancy_id INTEGER REFERENCES vacancy(vacancy_id) NOT NULL,
