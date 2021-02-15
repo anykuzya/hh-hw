@@ -1,4 +1,4 @@
-package hw.servers.jersey.src.main.java;
+package jersey;
 
 public class JerseyApplication {
 
