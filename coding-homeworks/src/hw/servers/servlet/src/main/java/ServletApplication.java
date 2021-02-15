@@ -1,4 +1,4 @@
-package hw.servers.servlet.src.main.java-java-servers-homework;
+package hw.servers.servlet.src.main.java;
 
 public class ServletApplication {
 
