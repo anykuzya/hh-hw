@@ -7,11 +7,13 @@ class EmbeddedJetty {
     Server server = new Server(port);
     ServletContextHandler contextHandler = new ServletContextHandler();
     contextHandler.setAttribute("counter", counter);
-    contextHandler.addServlet(ServletCounter.class, "/");
+    contextHandler.addServlet(ServletCounter.class, "/counter");
+    contextHandler.addServlet(ServletCounterReset.class, "/counter/clear");
     server.setHandler(contextHandler);
     return server;
   }
 }
+
 public class ServletApplication {
 
   public static void main(String[] args) throws Exception {

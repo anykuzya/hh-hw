@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-@WebServlet(urlPatterns = "/counter")
+@WebServlet(urlPatterns = "/")
 public class ServletCounter extends HttpServlet {
     private Counter counter;
     public void init() {
@@ -27,12 +27,18 @@ public class ServletCounter extends HttpServlet {
         String decValHeader = "Subtraction-Value";
         String decVal = req.getHeader(decValHeader);
         if (decVal == null) {
+            PrintWriter writer = resp.getWriter();
+            writer.print("You should pass Subtraction-Value in headers");
+            writer.flush();
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             System.err.println("received request without Subtraction-Value header");
         } else {
             try {
                 counter.dec(req.getIntHeader(decValHeader));
             } catch (NumberFormatException e) {
+                PrintWriter writer = resp.getWriter();
+                writer.print("Subtraction-Value should be a number");
+                writer.flush();
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 System.err.println("received request with not a number in the Subtraction-Value header");
             }
