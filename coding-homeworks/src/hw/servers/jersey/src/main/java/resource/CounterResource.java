@@ -5,24 +5,23 @@ import common.Counter;
 import javax.servlet.ServletContext;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDateTime;
 
 class DateValueDTO {
-    private LocalDateTime date;
+    private String date;
     private Integer value;
 
-    public DateValueDTO(LocalDateTime date, Integer value) {
+    public DateValueDTO(String date, Integer value) {
         this.date = date;
         this.value = value;
     }
 
-    public LocalDateTime getDate() {
+    public String getDate() {
         return date;
     }
 
-    public void setDate(LocalDateTime date) {
+    public void setDate(String date) {
         this.date = date;
     }
 
@@ -45,8 +44,8 @@ public class CounterResource {
     @GET
     @Produces("application/json")
     public Response get() {
-        DateValueDTO response = new DateValueDTO(LocalDateTime.now(), counter.get());
-        return Response.ok(response, MediaType.APPLICATION_JSON_TYPE).build();
+        DateValueDTO response = new DateValueDTO(LocalDateTime.now().toString(), counter.get());
+        return Response.ok(response).build();
     }
 
     @POST
