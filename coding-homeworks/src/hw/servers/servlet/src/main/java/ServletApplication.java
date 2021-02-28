@@ -17,7 +17,7 @@ class EmbeddedJetty {
 public class ServletApplication {
 
   public static void main(String[] args) throws Exception {
-    Server jetty = EmbeddedJetty.createServer(8081, new Counter());
+    Server jetty = EmbeddedJetty.createServer(8080, new Counter());
     jetty.start();
     jetty.join();
   }
