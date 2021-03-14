@@ -11,7 +11,9 @@ class InputType(Enum):
     OPERATION = 'Введите операцию: '
 
 
+@cache_decorator
 def calculator(a, b, op):
+    print("Calculating " + str(a) + op + str(b))
     if op == '+':
         return a + b
     if op == '-':
@@ -42,8 +44,8 @@ def read_input(input_type):
 
 
 if __name__ == '__main__':
-    a = read_input(InputType.NUMBER)
-    b = read_input(InputType.NUMBER)
-    print(InputType.OPERATION.value)
-    operation = read_input(InputType.OPERATION)
-    print('Результат: ', calculator(a, b, operation))
+    while True:
+        a = read_input(InputType.NUMBER)
+        b = read_input(InputType.NUMBER)
+        operation = read_input(InputType.OPERATION)
+        print('Результат: ', calculator(a, b, operation))
