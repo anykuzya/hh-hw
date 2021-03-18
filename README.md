@@ -8,3 +8,5 @@
 Авторизационный токен берется из переменных окружения в postman ({{token}})
 
 ДЗ по архитектуре в файле hhArchitecture.md
+
+ДЗ по питону в coding-homeworks/src/hw/core
